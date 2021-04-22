@@ -491,11 +491,12 @@ namespace Learner
         // draw at the maximum number of steps to write.
         const int ply = move_hist_scores.size();
 
-        // has it reached the max length or is a draw by fifty-move rule
-        // or by 3-fold repetition
-        if (ply >= params.write_maxply 
-            || pos.is_fifty_move_draw() 
-            || pos.is_three_fold_repetition())
+        // The score threshold to determine the result of the game
+        // when ply reaches write max ply.
+        constexpr int adj_maxply_score = 100;
+
+        // Check for draw by fifty-move rule and by 3-fold repetition.
+        if (pos.is_fifty_move_draw() || pos.is_three_fold_repetition())
         {
             return 0;
         }
@@ -506,6 +507,18 @@ namespace Learner
             return pos.checkers()
                 ? -1 /* mate */
                 : 0 /* stalemate */;
+        }
+
+        // If max ply is reached, check the score of the last move and if
+        // it it is adj_maxply_score or more return 1 or if it is
+        // -adj_maxply_score or less return -1 otherwise return 0.
+        if (ply >= params.write_maxply)
+        {
+            // Negate the score since the move was already pushed on the board.
+            auto last_move_score = -move_hist_scores.back();
+
+            return last_move_score >= adj_maxply_score ? 1 :
+                   last_move_score <= -adj_maxply_score ? -1 : 0;
         }
 
         // Adjudicate game to a draw if the last 4 scores of each engine is 0.
