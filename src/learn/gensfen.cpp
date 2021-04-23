@@ -493,7 +493,7 @@ namespace Learner
 
         // The score threshold to determine the result of the game
         // when ply reaches write max ply.
-        constexpr int adj_maxply_score = 100;
+        constexpr int adj_maxply_score = 500;
 
         // Check for draw by fifty-move rule and by 3-fold repetition.
         if (pos.is_fifty_move_draw() || pos.is_three_fold_repetition())
